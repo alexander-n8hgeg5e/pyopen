@@ -1,0 +1,43 @@
+#!/usr/bin/python3
+import subprocess
+from sys import argv
+from shlex import split
+# short manual:
+url = argv[1]
+# end of short manual
+out=subprocess.check_output(['xdg-mime','query','filetype', url]).decode().strip()
+print(out)
+#out='part mp4'
+opendict= {\
+        'pdf':'okular',\
+        'jpg':'okular',\
+        'jpeg':'okular',\
+        'png':'okular',\
+        'part':'vlc',\
+        'mp4':'vlc',\
+        'text':'edit_nvim_tag_browser',\
+        'text/html':'qutebrowser',\
+        'inode/directory':'e',\
+          }
+
+def open_with(keys):
+    print('keys are: '+str(keys))
+    for k in keys:
+        try:
+            print('try key: '+k)
+            if subprocess.check_call(split(opendict[k])+[url])==0:
+                break
+        except:
+            pass
+
+
+keys=[]
+for key in opendict.keys():
+    if out.find(key) is not -1:
+        keys.append(key)
+keys.sort(key=len,reverse=True)
+if len(keys) == 0:
+    print('not filetype key found')
+    subprocess.call(['xdg-open',url])
+else:
+    open_with(keys)
